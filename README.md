@@ -27,9 +27,11 @@ The point of the project is to demonstrate the practical value of event sourcing
 ## Running locally
 
 ```bash
-composer install
-symfony server:start
+docker compose up -d --build
+docker compose exec php composer install
 ```
+
+App on http://localhost:8081, Postgres on `localhost:5434`.
 
 ## Status
 
