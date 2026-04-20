@@ -6,6 +6,7 @@ namespace App\Command;
 
 use App\Domain\Entity\Card;
 use App\Domain\Event\Card\CardMoved;
+use App\Domain\ValueObject\ColumnId;
 use App\Domain\ValueObject\Id;
 use App\Infrastructure\EventStore\ConcurrencyException;
 use App\Infrastructure\EventStore\EventStore;
@@ -29,17 +30,20 @@ final class DemoConcurrencyCommand extends Command
 
         $cardId  = Id::generate();
         $boardId = Id::generate();
+        $todo    = ColumnId::fromString(ColumnId::TODO);
+        $doing   = ColumnId::fromString(ColumnId::DOING);
+        $blocked = ColumnId::fromString(ColumnId::BLOCKED);
 
-        $card = Card::create($cardId, $boardId, 'todo', 'Concurrency test');
+        $card = Card::create($cardId, $boardId, $todo, 'Concurrency test');
         $this->store->append($cardId, 0, $card->pullUncommittedEvents());
         $io->writeln('writer A appended CardCreated at version 1');
 
         // Two writers loaded the stream at version 1. Both try to write version 2.
-        $this->store->append($cardId, 1, [new CardMoved($cardId, 'todo', 'doing')]);
+        $this->store->append($cardId, 1, [new CardMoved($cardId, $todo, $doing)]);
         $io->writeln('writer A appended CardMoved at version 2');
 
         try {
-            $this->store->append($cardId, 1, [new CardMoved($cardId, 'todo', 'blocked')]);
+            $this->store->append($cardId, 1, [new CardMoved($cardId, $todo, $blocked)]);
             $io->error('writer B succeeded — guard is broken');
 
             return Command::FAILURE;

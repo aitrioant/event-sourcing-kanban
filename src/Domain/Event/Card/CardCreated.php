@@ -6,6 +6,7 @@ namespace App\Domain\Event\Card;
 
 use App\Domain\Event\DomainEvent;
 use App\Domain\Event\EventType;
+use App\Domain\ValueObject\ColumnId;
 use App\Domain\ValueObject\Id;
 
 final readonly class CardCreated implements DomainEvent
@@ -13,7 +14,7 @@ final readonly class CardCreated implements DomainEvent
     public function __construct(
         public Id $cardId,
         public Id $boardId,
-        public string $columnId,
+        public ColumnId $columnId,
         public string $title,
     ) {
     }
@@ -27,7 +28,7 @@ final readonly class CardCreated implements DomainEvent
     {
         return [
             'board_id'  => $this->boardId->toString(),
-            'column_id' => $this->columnId,
+            'column_id' => $this->columnId->toString(),
             'title'     => $this->title,
         ];
     }
@@ -37,7 +38,7 @@ final readonly class CardCreated implements DomainEvent
         return new self(
             cardId:   $aggregateId,
             boardId:  Id::fromString($payload['board_id']),
-            columnId: $payload['column_id'],
+            columnId: ColumnId::fromString($payload['column_id']),
             title:    $payload['title'],
         );
     }

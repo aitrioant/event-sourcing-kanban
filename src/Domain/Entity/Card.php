@@ -7,15 +7,16 @@ namespace App\Domain\Entity;
 use App\Domain\Event\Card\CardCreated;
 use App\Domain\Event\Card\CardMoved;
 use App\Domain\Event\DomainEvent;
+use App\Domain\ValueObject\ColumnId;
 use App\Domain\ValueObject\Id;
 
 final class Card extends AggregateRoot
 {
     private Id $boardId;
-    private string $columnId;
+    private ColumnId $columnId;
     private string $title;
 
-    public static function create(Id $cardId, Id $boardId, string $columnId, string $title): self
+    public static function create(Id $cardId, Id $boardId, ColumnId $columnId, string $title): self
     {
         $card = new self();
         $card->recordThat(new CardCreated($cardId, $boardId, $columnId, $title));
@@ -23,16 +24,16 @@ final class Card extends AggregateRoot
         return $card;
     }
 
-    public function moveTo(string $columnId): void
+    public function moveTo(ColumnId $columnId): void
     {
-        if ($columnId === $this->columnId) {
+        if ($columnId->equals($this->columnId)) {
             return;
         }
 
         $this->recordThat(new CardMoved($this->id, $this->columnId, $columnId));
     }
 
-    public function columnId(): string
+    public function columnId(): ColumnId
     {
         return $this->columnId;
     }

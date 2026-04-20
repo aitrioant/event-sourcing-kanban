@@ -6,6 +6,7 @@ namespace App\Command;
 
 use App\Domain\Entity\Card;
 use App\Domain\Repository\CardRepository;
+use App\Domain\ValueObject\ColumnId;
 use App\Domain\ValueObject\Id;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -28,9 +29,9 @@ final class DemoEventStoreCommand extends Command
         $cardId  = Id::generate();
         $boardId = Id::generate();
 
-        $card = Card::create($cardId, $boardId, 'todo', 'Wire up the event store');
-        $card->moveTo('doing');
-        $card->moveTo('done');
+        $card = Card::create($cardId, $boardId, ColumnId::fromString(ColumnId::TODO), 'Wire up the event store');
+        $card->moveTo(ColumnId::fromString(ColumnId::DOING));
+        $card->moveTo(ColumnId::fromString(ColumnId::DONE));
         $this->cards->save($card);
 
         $io->writeln(sprintf('saved card %s at version %d', $cardId->toString(), $card->version()));
@@ -39,11 +40,11 @@ final class DemoEventStoreCommand extends Command
         $io->writeln(sprintf(
             'replayed card %s: column=%s version=%d',
             $reloaded->id()->toString(),
-            $reloaded->columnId(),
+            $reloaded->columnId()->toString(),
             $reloaded->version(),
         ));
 
-        return $reloaded->columnId() === 'done' && $reloaded->version() === 3
+        return $reloaded->columnId()->equals(ColumnId::fromString(ColumnId::DONE)) && $reloaded->version() === 3
             ? Command::SUCCESS
             : Command::FAILURE;
     }
