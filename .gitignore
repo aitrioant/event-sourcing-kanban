@@ -14,6 +14,7 @@
 /.vscode/
 /.fleet/
 *.iml
+/config/reference.php
 
 # OS
 .DS_Store
@@ -29,3 +30,7 @@ Thumbs.db
 # Build / local
 /build/
 /coverage/
+
+###> phpunit/phpunit ###
+/phpunit.xml
+###< phpunit/phpunit ###

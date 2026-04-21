@@ -19,5 +19,6 @@ services:
     App\:
         resource: '../src/'
 
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
+    # Bind interfaces to their event-sourced implementations.
+    App\Infrastructure\EventStore\EventStore: '@App\Infrastructure\EventStore\DoctrineEventStore'
+    App\Domain\Repository\CardRepository: '@App\Infrastructure\Doctrine\EventSourcedCardRepository'
