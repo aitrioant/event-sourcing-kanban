@@ -30,9 +30,9 @@ final class DemoConcurrencyCommand extends Command
 
         $cardId  = Id::generate();
         $boardId = Id::generate();
-        $todo    = ColumnId::fromString(ColumnId::TODO);
-        $doing   = ColumnId::fromString(ColumnId::DOING);
-        $blocked = ColumnId::fromString(ColumnId::BLOCKED);
+        $todo    = ColumnId::todo();
+        $doing   = ColumnId::doing();
+        $blocked = ColumnId::blocked();
 
         $card = Card::create($cardId, $boardId, $todo, 'Concurrency test');
         $this->store->append($cardId, 0, $card->pullUncommittedEvents());

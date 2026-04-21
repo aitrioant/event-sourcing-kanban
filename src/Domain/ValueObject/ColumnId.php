@@ -8,37 +8,58 @@ use InvalidArgumentException;
 
 final readonly class ColumnId
 {
-    public const BACKLOG = 'backlog';
-    public const TODO    = 'todo';
-    public const DOING   = 'doing';
-    public const BLOCKED = 'blocked';
-    public const REVIEW  = 'review';
-    public const DONE    = 'done';
-
-    private const KNOWN = [
-        self::BACKLOG,
-        self::TODO,
-        self::DOING,
-        self::BLOCKED,
-        self::REVIEW,
-        self::DONE,
-    ];
+    public const string BACKLOG = 'backlog';
+    public const string TODO    = 'todo';
+    public const string DOING   = 'doing';
+    public const string BLOCKED = 'blocked';
+    public const string REVIEW  = 'review';
+    public const string DONE    = 'done';
 
     private function __construct(private string $value)
     {
     }
 
+    public static function backlog(): self
+    {
+        return new self(self::BACKLOG);
+    }
+
+    public static function todo(): self
+    {
+        return new self(self::TODO);
+    }
+
+    public static function doing(): self
+    {
+        return new self(self::DOING);
+    }
+
+    public static function blocked(): self
+    {
+        return new self(self::BLOCKED);
+    }
+
+    public static function review(): self
+    {
+        return new self(self::REVIEW);
+    }
+
+    public static function done(): self
+    {
+        return new self(self::DONE);
+    }
+
     public static function fromString(string $value): self
     {
-        if (!in_array($value, self::KNOWN, true)) {
-            throw new InvalidArgumentException(sprintf(
-                'Unknown column "%s". Known: %s.',
-                $value,
-                implode(', ', self::KNOWN),
-            ));
-        }
-
-        return new self($value);
+        return match ($value) {
+            self::BACKLOG => self::backlog(),
+            self::TODO    => self::todo(),
+            self::DOING   => self::doing(),
+            self::BLOCKED => self::blocked(),
+            self::REVIEW  => self::review(),
+            self::DONE    => self::done(),
+            default       => throw new InvalidArgumentException("Unknown column: $value"),
+        };
     }
 
     public function toString(): string
