@@ -6,6 +6,9 @@ namespace App\Domain\Event;
 
 enum EventType: string
 {
-    case CardCreated = 'card.created';
-    case CardMoved   = 'card.moved';
+    case CardCreated   = 'card.created';
+    case CardMoved     = 'card.moved';
+    case CardAssigned  = 'card.assigned';
+    case CardCommented = 'card.commented';
+    case CardArchived  = 'card.archived';
 }

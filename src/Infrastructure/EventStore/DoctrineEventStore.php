@@ -7,8 +7,10 @@ namespace App\Infrastructure\EventStore;
 use App\Domain\Event\DomainEvent;
 use App\Domain\Event\EventType;
 use App\Domain\ValueObject\Id;
+use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Generator;
 
 final readonly class DoctrineEventStore implements EventStore
 {
@@ -32,6 +34,24 @@ final readonly class DoctrineEventStore implements EventStore
             ),
             $rows,
         );
+    }
+
+    public function loadAll(): Generator
+    {
+        $rows = $this->connection->iterateAssociative(
+            'SELECT stream_id, event_type, payload, occurred_at FROM events ORDER BY sequence ASC',
+        );
+
+        foreach ($rows as $row) {
+            $streamId   = Id::fromString($row['stream_id']);
+            $eventClass = $this->eventMap->classFor(EventType::from($row['event_type']));
+            $event      = $eventClass::fromPayload(
+                $streamId,
+                json_decode($row['payload'], true, flags: JSON_THROW_ON_ERROR),
+            );
+
+            yield new RecordedEvent($event, new DateTimeImmutable($row['occurred_at']));
+        }
     }
 
     public function append(Id $streamId, int $expectedVersion, array $events): void
