@@ -19,6 +19,21 @@ services:
     App\:
         resource: '../src/'
 
+    # Tag every Projector implementation so the registry can collect them.
+    _instanceof:
+        App\Application\Projection\Projector:
+            tags: ['app.projector']
+
+    App\Application\Projection\ProjectorRegistry:
+        arguments:
+            $projectors: !tagged_iterator app.projector
+
     # Bind interfaces to their event-sourced implementations.
-    App\Infrastructure\EventStore\EventStore: '@App\Infrastructure\EventStore\DoctrineEventStore'
+    # The append path goes through ProjectingEventStore so projections stay in sync
+    # in the same DB transaction as the event insert.
     App\Domain\Repository\CardRepository: '@App\Infrastructure\Doctrine\EventSourcedCardRepository'
+    App\Infrastructure\EventStore\EventStore: '@App\Infrastructure\EventStore\ProjectingEventStore'
+
+    App\Infrastructure\EventStore\ProjectingEventStore:
+        arguments:
+            $inner: '@App\Infrastructure\EventStore\DoctrineEventStore'

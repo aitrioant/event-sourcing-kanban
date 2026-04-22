@@ -20,4 +20,11 @@ interface EventStore
      * @throws ConcurrencyException when another writer beat us to $expectedVersion + 1
      */
     public function append(Id $streamId, int $expectedVersion, array $events): void;
+
+    /**
+     * Stream every persisted event in global sequence order. Used to rebuild projections.
+     *
+     * @return iterable<RecordedEvent>
+     */
+    public function loadAll(): iterable;
 }
